@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #004d7a;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #aaa;
+    }
+
+    textarea {
+      height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: #004d7a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #006fa1;
+    }
+
+    #resume-output {
+      margin-top: 40px;
+      padding: 30px;
+      background-color: #f9f9f9;
+      border-radius: 16px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #download-btn, #download-word-btn {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    #download-btn:hover, #download-word-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Professional Resume Generator</h1>
+    <form id="resume-form">
+      <label for="fullname">Full Name</label>
+      <input type="text" id="fullname" placeholder="e.g., Jane Doe" required>
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="e.g., janedoe@gmail.com" required>
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" placeholder="e.g., +233 24 000 0000" required>
+
+      <label for="address">Address</label>
+      <textarea id="address" placeholder="e.g., 123 Maple Street, Accra"></textarea>
+
+      <label for="objective">Career Objective</label>
+      <textarea id="objective" placeholder="Write a short statement about your career goals and aspirations."></textarea>
+
+      <label for="experience">Work Experience</label>
+      <textarea id="experience" placeholder="List your job titles, companies, and years worked."></textarea>
+
+      <label for="education">Education</label>
+      <textarea id="education" placeholder="Mention your degrees, institutions, and graduation years."></textarea>
+
+      <label for="skills">Skills</label>
+      <textarea id="skills" placeholder="List your technical and soft skills."></textarea>
+
+      <label for="certifications">Certifications</label>
+      <textarea id="certifications" placeholder="Mention any certifications with dates."></textarea>
+
+      <label for="projects">Projects</label>
+      <textarea id="projects" placeholder="List any personal or work-related projects you've completed."></textarea>
+
+      <label for="languages">Languages</label>
+      <input type="text" id="languages" placeholder="e.g., English, French, Twi">
+
+      <label for="references">References</label>
+      <textarea id="references" placeholder="Provide references or state 'Available upon request'."></textarea>
+
+      <button type="submit">Generate Resume</button>
+    </form>
+
+    <button id="download-btn">Download Resume as PDF</button>
+    <button id="download-word-btn">Download Resume as Word</button>
+
+    <div id="resume-output" style="display:none">
+      <h2>Your Resume</h2>
+      <div id="resume-content"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const form = document.getElementById("resume-form");
+    const output = document.getElementById("resume-output");
+    const content = document.getElementById("resume-content");
+    const downloadBtn = document.getElementById("download-btn");
+    const downloadWordBtn = document.getElementById("download-word-btn");
+
+    let resumeHTML = '';
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const data = {
+        name: document.getElementById("fullname").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        address: document.getElementById("address").value,
+        objective: document.getElementById("objective").value,
+        experience: document.getElementById("experience").value,
+        education: document.getElementById("education").value,
+        skills: document.getElementById("skills").value,
+        certifications: document.getElementById("certifications").value,
+        projects: document.getElementById("projects").value,
+        languages: document.getElementById("languages").value,
+        references: document.getElementById("references").value
+      };
+
+      resumeHTML = `
+        <h3>${data.name}</h3>
+        <p><strong>Email:</strong> ${data.email} | <strong>Phone:</strong> ${data.phone}</p>
+        <p><strong>Address:</strong> ${data.address}</p>
+        <hr>
+        ${data.objective ? `<h4>Career Objective</h4><p>${data.objective}</p>` : ''}
+        ${data.experience ? `<h4>Work Experience</h4><p>${data.experience}</p>` : ''}
+        ${data.education ? `<h4>Education</h4><p>${data.education}</p>` : ''}
+        ${data.skills ? `<h4>Skills</h4><p>${data.skills}</p>` : ''}
+        ${data.certifications ? `<h4>Certifications</h4><p>${data.certifications}</p>` : ''}
+        ${data.projects ? `<h4>Projects</h4><p>${data.projects}</p>` : ''}
+        ${data.languages ? `<h4>Languages</h4><p>${data.languages}</p>` : ''}
+        ${data.references ? `<h4>References</h4><p>${data.references}</p>` : ''}
+      `;
+
+      content.innerHTML = resumeHTML;
+      output.style.display = "block";
+      downloadBtn.style.display = "block";
+      downloadWordBtn.style.display = "block";
+      output.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.html(document.getElementById("resume-content"), {
+        callback: function (pdf) {
+          pdf.save("resume.pdf");
+        },
+        x: 10,
+        y: 10
+      });
+    });
+
+    downloadWordBtn.addEventListener("click", () => {
+      const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+                        xmlns:w='urn:schemas-microsoft-com:office:word'
+                        xmlns='http://www.w3.org/TR/REC-html40'>
+                      <head><meta charset='utf-8'><title>Resume</title></head><body>`;
+      const footer = "</body></html>";
+      const sourceHTML = header + document.getElementById("resume-content").innerHTML + footer;
+
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      document.body.appendChild(fileDownload);
+      fileDownload.href = source;
+      fileDownload.download = 'resume.doc';
+      fileDownload.click();
+      document.body.removeChild(fileDownload);
+    });
+  </script>
+</body>
+</html>
